@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Zawadi - Harusi ya HAMISI na SUBIRA</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background image */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: url('image/love.jpg') no-repeat center center/cover;
+  z-index: -2;
+}
+
+/* Gradient overlay */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(270deg, rgba(255,111,145,0.6), rgba(255,150,113,0.6), rgba(255,199,95,0.6), rgba(249,248,113,0.6));
+  background-size: 800% 800%;
+  animation: bgGradient 20s ease infinite;
+  z-index: -1;
+}
+
+@keyframes bgGradient {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+
+/* Sidebar */
+.sidebar {
+  height: 100%;
+  width: 70px;
+  background: rgba(173, 20, 87, 0.95);
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.3);
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-x: hidden;
+}
+.sidebar.open { width: 220px; }
+.sidebar .toggle-btn {
+  font-size: 1.6rem;
+  padding: 15px;
+  cursor: pointer;
+  text-align: center;
+  color: white;
+}
+.sidebar a {
+  padding: 12px 15px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  white-space: nowrap;
+}
+.sidebar a:hover { background: rgba(255,255,255,0.15); }
+.sidebar span { opacity: 0; transition: opacity 0.2s ease; }
+.sidebar.open span { opacity: 1; }
+
+/* Dark mode */
+body.dark::after {
+  background: rgba(0,0,0,0.6);
+}
+body.dark {
+  color: #f1f1f1;
+}
+body.dark .sidebar { background: rgba(30, 30, 30, 0.95); }
+body.dark h2 { color: #ff6f91; }
+body.dark .gift-list { background: rgba(50,50,50,0.85); }
+body.dark .gift-item { background: rgba(255,255,255,0.05); }
+
+/* Top controls */
+.top-controls {
+  position: fixed;
+  top: 80px;
+  left: 10px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: left 0.3s ease;
+}
+.sidebar.open ~ .top-controls {
+  left: 160px;
+}
+.control-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.control-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.15);
+}
+
+/* Header */
+header {
+  padding: 20px;
+  background: rgba(255, 192, 203, 0.85);
+  border-radius: 0 0 20px 20px;
+  position: sticky;
+  top: 0;
+  margin-left: 70px;
+}
+.sidebar.open ~ header { margin-left: 220px; }
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #c71585;
+}
+
+/* Main */
+main {
+  padding: 40px 20px;
+  margin-left: 70px;
+}
+.sidebar.open ~ main { margin-left: 220px; }
+h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+.gift-list {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.8);
+  color: black;
+}
+.gift-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.5);
+}
+.gift-item img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.payment-link {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #d81b60, #ff3366);
+  color: white;
+  font-weight: 700;
+  border-radius: 40px;
+  text-decoration: none;
+}
+.payment-link:hover {
+  background: linear-gradient(135deg, #ff3366, #d81b60);
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+  <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+  <a href="index.html"><i class="fas fa-home"></i><span>Nyumbani</span></a>
+  <a href="about.html"><i class="fas fa-info-circle"></i><span>Kuhusu</span></a>
+  <a href="info.html"><i class="fas fa-file-alt"></i><span>Taarifa</span></a>
+  <a href="gallery.html"><i class="fas fa-image"></i><span>Picha</span></a>
+  <a href="rsvp.html"><i class="fas fa-envelope-open-text"></i><span>RSVP</span></a>
+  <a href="directions.html"><i class="fas fa-map-marker-alt"></i><span>Maelekezo</span></a>
+  <a href="gifts.html"><i class="fas fa-gift"></i><span>Zawadi</span></a>
+</div>
+
+<!-- Top controls -->
+<div class="top-controls">
+  <button class="control-btn" onclick="toggleDarkMode()">🌙</button>
+</div>
+
+<header>
+  <h1>Orodha ya Zawadi</h1>
+</header>
+
+<main>
+  <p>Tunathamini sana zawadi zako! Hapa kuna baadhi ya vitu tunavyopendelea:</p>
+  
+<div class="gift-list">
+  <div class="gift-item"><img src="image/fridge.jpg" alt="Friji"> Friji mpya yenye uwezo wa kuhifadhi vyakula kwa muda mrefu</div>
+  <div class="gift-item"><img src="image/gas-stove.jpg" alt="Jiko la gesi"> Jiko la gesi lenye kasi na salama</div>
+  <div class="gift-item"><img src="image/kitchen-set.jpg" alt="Seti ya vyombo"> Seti kamili ya vyombo vya ndani vya jikoni</div>
+  <div class="gift-item"><img src="image/cooking-pots.jpg" alt="Sufuria"> Vifaa vya kupikia kama sufuria na bakuli za mapishi</div>
+  <div class="gift-item"><img src="image/drinks.jpg" alt="Vinywaji"> Vinywaji baridi kwa ajili ya wageni na familia</div>
+  <div class="gift-item"><img src="image/storage-baskets.jpg" alt="Makapu"> Makapu ya kuhifadhi vyakula na vyombo vya chakula</div>
+  <div class="gift-item"><img src="image/home-accessories.jpg" alt="Vipodozi vya nyumbani"> Vipodozi vya nyumbani kama taulo na makikapu ya ufagio</div>
+  <div class="gift-item"><img src="image/furniture.jpg" alt="Samani"> Samani za ndani za kisasa na za kuvutia</div>
+  <div class="gift-item"><img src="image/fruits.jpg" alt="Matunda"> Machungwa au matunda ya kawaida kwa ajili ya zawadi za kipekee</div>
+</div>
+
+  <a href="payment.html" class="payment-link">Changia kupitia ukurasa wa malipo</a>
+</main>
+
+<script>
+function toggleSidebar() {
+  document.getElementById("mySidebar").classList.toggle("open");
+}
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+}
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,674 @@
+<?php
+require_once '../config/session_check.php';
+requireLogin();
+
+// Get user info
+$user = getCurrentUser();
+?>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Malipo ya Zawadi - Harusi ya HAMISI na SUBIRA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* BACKGROUND */
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            background: url('public/images/Love.jpg') no-repeat center center/cover;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(270deg, rgba(255,105,180,0.35), rgba(255,215,0,0.25));
+            backdrop-filter: brightness(0.8);
+            animation: bgMove 10s infinite alternate;
+            z-index: -1;
+        }
+        @keyframes bgMove { 
+            0% {transform: scale(1);} 
+            100% {transform: scale(1.08);} 
+        }
+
+        /* HEARTS ANIMATION */
+        .heart {
+            position: fixed;
+            top: -10px;
+            font-size: 20px;
+            color: rgba(255,255,255,0.7);
+            animation: fall 8s linear infinite;
+            z-index: 0;
+        }
+        @keyframes fall { 
+            to { transform: translateY(110vh); } 
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            height: 100%;
+            width: 70px;
+            background: rgba(173, 20, 87, 0.95);
+            position: fixed;
+            left: 0;
+            top: 0;
+            transition: width 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            z-index: 1000;
+        }
+        .sidebar.open { width: 220px; }
+        .sidebar .toggle-btn {
+            font-size: 1.6rem;
+            padding: 15px;
+            cursor: pointer;
+            color: white;
+            text-align: center;
+        }
+        .sidebar a {
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            white-space: nowrap;
+        }
+        .sidebar a:hover { background: rgba(255,255,255,0.15); }
+        .sidebar span { opacity: 0; transition: opacity 0.2s ease; }
+        .sidebar.open span { opacity: 1; }
+
+        /* DARK MODE */
+        body.dark { background: #1e1e1e; color: #f1f1f1; }
+        body.dark .sidebar { background: rgba(30, 30, 30, 0.95); }
+        body.dark header { background: rgba(50,50,50,0.85); }
+        body.dark .payment-form { background: rgba(50,50,50,0.85); }
+
+        /* TOP CONTROLS */
+        .top-controls {
+            position: fixed;
+            top: 80px;
+            left: 10px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .control-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .control-btn:hover { 
+            background: rgba(255,255,255,0.3); 
+            transform: scale(1.1);
+        }
+
+        /* HEADER */
+        header {
+            padding: 20px;
+            background: rgba(255, 192, 203, 0.85);
+            margin-left: 70px;
+            border-radius: 0 0 20px 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(255,105,180,0.6);
+        }
+        .sidebar.open ~ header { margin-left: 220px; }
+        header h1 { 
+            margin: 0; 
+            font-size: 2.2rem; 
+            color: #c71585; 
+        }
+
+        /* MAIN CONTAINER */
+        main {
+            padding: 40px 20px;
+            margin-left: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 200px);
+        }
+        .sidebar.open ~ main { margin-left: 220px; }
+
+        /* PAYMENT FORM */
+        .payment-form {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border-radius: 25px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .payment-form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #ff6b9d, #c44569, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: glowing 3s ease-in-out infinite alternate;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        .payment-form:hover::before {
+            opacity: 0.05;
+        }
+        .payment-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            border-color: #ff6b9d;
+        }
+        @keyframes glowing {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .payment-form h2 { 
+            text-align: center; 
+            color: #b76e79; 
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+
+        /* FORM GROUPS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #555;
+            font-size: 1rem;
+        }
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e1e5e9;
+            font-size: 1rem;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: #ff6b9d;
+            box-shadow: 0 0 15px rgba(255,107,157,0.3);
+            outline: none;
+            transform: translateY(-2px);
+        }
+        .form-group textarea { 
+            resize: vertical; 
+            min-height: 100px; 
+        }
+
+        /* PHONE FIELD STYLING */
+        .phone-group {
+            position: relative;
+        }
+        .phone-group input {
+            padding-left: 50px;
+        }
+        .phone-prefix {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* SUBMIT BUTTON */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255,107,157,0.4);
+        }
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* SUCCESS MESSAGE */
+        .success-message {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: slideInUp 0.5s ease;
+            box-shadow: 0 10px 30px rgba(40,167,69,0.3);
+        }
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .success-message h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.5rem;
+        }
+        .success-message p {
+            margin: 0 0 20px 0;
+            font-size: 1.1rem;
+        }
+        .qr-code-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+        .qr-code-container img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* ERROR MESSAGE */
+        .error-message {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* LOADING SPINNER */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* FOOTER */
+        footer {
+            background: rgba(255, 105, 180, 0.9);
+            padding: 15px;
+            margin-left: 70px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .sidebar.open ~ footer { margin-left: 220px; }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .payment-form {
+                margin: 20px;
+                padding: 25px;
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .form-group input, 
+            .form-group select, 
+            .form-group textarea {
+                padding: 12px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            .submit-btn {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            main {
+                padding: 20px 10px;
+            }
+            .payment-form {
+                padding: 20px;
+                border-radius: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEARTS -->
+    <script>
+        for (let i = 0; i < 15; i++) {
+            let heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = (4 + Math.random() * 6) + "s";
+            heart.innerHTML = "💖";
+            document.body.appendChild(heart);
+        }
+    </script>
+
+    <!-- SIDEBAR -->
+    <div id="mySidebar" class="sidebar">
+        <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+        <a href="index.html"><i class="fas fa-home"></i><span>Nyumbani</span></a>
+        <a href="about.html"><i class="fas fa-info-circle"></i><span>Kuhusu</span></a>
+        <a href="info.html"><i class="fas fa-file-alt"></i><span>Taarifa</span></a>
+        <a href="gallery.html"><i class="fas fa-image"></i><span>Picha</span></a>
+        <a href="rsvp.html"><i class="fas fa-envelope-open-text"></i><span>RSVP</span></a>
+        <a href="directions.html"><i class="fas fa-map-marker-alt"></i><span>Maelekezo</span></a>
+        <a href="gifts.html"><i class="fas fa-gift"></i><span>Zawadi</span></a>
+        <a href="payment-enhanced.html"><i class="fas fa-money-bill-wave"></i><span>Malipo</span></a>
+    </div>
+
+    <!-- TOP CONTROLS -->
+    <div class="top-controls">
+        <button class="control-btn" onclick="toggleDarkMode()">🌙</button>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <h1>💝 Malipo ya Zawadi</h1>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main>
+        <form class="payment-form" id="paymentForm">
+            <h2><i class="fas fa-gift"></i> Fomu ya Malipo</h2>
+            
+            <div class="form-group">
+                <label for="name"><i class="fas fa-user"></i> Jina Kamili</label>
+                <input type="text" id="name" name="name" required placeholder="Jina lako kamili">
+            </div>
+
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Barua Pepe</label>
+                <input type="email" id="email" name="email" required placeholder="barua@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone"><i class="fas fa-phone"></i> Namba ya Simu</label>
+                <div class="phone-group">
+                    <span class="phone-prefix">+255</span>
+                    <input type="tel" id="phone" name="phone" placeholder="7XXXXXXXX" pattern="[0-9]{9}" title="Tafadhali weka namba ya simu sahihi">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="amount"><i class="fas fa-coins"></i> Kiasi (TZS)</label>
+                <input type="number" id="amount" name="amount" required min="1000" max="1000000" placeholder="10000">
+            </div>
+
+            <div class="form-group">
+                <label for="method"><i class="fas fa-credit-card"></i> Njia ya Malipo</label>
+                <select id="method" name="method" required>
+                    <option value="">-- Chagua Njia ya Malipo --</option>
+                    <option value="mpesa">M-Pesa</option>
+                    <option value="airtel">Airtel Money</option>
+                    <option value="tigo">Tigo Pesa</option>
+                    <option value="bank">Benki</option>
+                    <option value="cash">Pesa Taslimu</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message"><i class="fas fa-comment"></i> Ujumbe (Hiari)</label>
+                <textarea id="message" name="message" placeholder="Ujumbe wako kwa wanandoa..."></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="btn-text"><i class="fas fa-paper-plane"></i> Thibitisha Malipo</span>
+                <span class="btn-loading" style="display: none;">
+                    <span class="loading-spinner"></span>Inatumwa...
+                </span>
+            </button>
+        </form>
+
+        <!-- SUCCESS MESSAGE -->
+        <div class="success-message" id="successMessage">
+            <h3><i class="fas fa-check-circle"></i> Malipo Yamekamilika!</h3>
+            <p>Asante kwa zawadi yako! Hii hapa QR code yako ya uthibitisho:</p>
+            <div class="qr-code-container" id="qrContainer">
+                <!-- QR code will be displayed here -->
+            </div>
+            <p><strong>Namba ya Muamala:</strong> <span id="transactionId"></span></p>
+            <button onclick="resetForm()" class="submit-btn" style="max-width: 200px; margin-top: 15px;">
+                <i class="fas fa-plus"></i> Malipo Mwingine
+            </button>
+        </div>
+
+        <!-- ERROR MESSAGE -->
+        <div class="error-message" id="errorMessage">
+            <!-- Error details will be displayed here -->
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        &copy; 2025 Harusi ya HAMISI na SUBIRA.
+    </footer>
+
+    <script>
+        // Sidebar toggle
+        function toggleSidebar() {
+            document.getElementById("mySidebar").classList.toggle("open");
+        }
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+        }
+
+        // Load dark mode preference
+        if (localStorage.getItem("darkMode") === "true") {
+            document.body.classList.add("dark");
+        }
+
+        // Form submission
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            
+            // Hide previous messages
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            try {
+                // Prepare form data
+                const formData = new FormData(this);
+                
+                // Send payment request
+                const response = await fetch('modules/payment/payment_processor.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show success message
+                    showSuccessMessage(result);
+                } else {
+                    // Show error message
+                    showErrorMessage(result.message, result.errors);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showErrorMessage('Kuna tatizo la mtandao. Tafadhali jaribu tena.');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.style.display = 'inline-block';
+                btnLoading.style.display = 'none';
+            }
+        });
+
+        // Show success message
+        function showSuccessMessage(result) {
+            const successMsg = document.getElementById('successMessage');
+            const qrContainer = document.getElementById('qrContainer');
+            const transactionId = document.getElementById('transactionId');
+            
+            // Set transaction ID
+            transactionId.textContent = result.transaction_id || 'N/A';
+            
+            // Show QR code if available
+            if (result.qr_code) {
+                qrContainer.innerHTML = `<img src="${result.qr_url}" alt="QR Code" />`;
+            } else {
+                qrContainer.innerHTML = '<p>QR Code haijatengenezwa</p>';
+            }
+            
+            // Hide form and show success message
+            document.getElementById('paymentForm').style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            // Scroll to success message
+            successMsg.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Show error message
+        function showErrorMessage(message, errors = null) {
+            const errorMsg = document.getElementById('errorMessage');
+            
+            let errorText = message;
+            if (errors) {
+                errorText += '<br><br>Details:<br>';
+                for (const [field, error] of Object.entries(errors)) {
+                    errorText += `• ${field}: ${error}<br>`;
+                }
+            }
+            
+            errorMsg.innerHTML = errorText;
+            errorMsg.style.display = 'block';
+            
+            // Scroll to error message
+            errorMsg.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentForm').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Phone number formatting
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 9) {
+                value = value.substring(0, 9);
+            }
+            e.target.value = value;
+        });
+
+        // Amount formatting
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = parseInt(e.target.value) || 0;
+            if (value < 1000) {
+                e.target.setCustomValidity('Kiasi lazima kiwe angalau TZS 1,000');
+            } else if (value > 1000000) {
+                e.target.setCustomValidity('Kiasi hakipaswi kuzidi TZS 1,000,000');
+            } else {
+                e.target.setCustomValidity('');
+            }
+        });
+
+        // Payment method change handler
+        document.getElementById('method').addEventListener('change', function(e) {
+            const phoneField = document.getElementById('phone');
+            const method = e.target.value;
+            
+            if (['mpesa', 'airtel', 'tigo'].includes(method)) {
+                phoneField.required = true;
+                phoneField.parentElement.style.opacity = '1';
+            } else {
+                phoneField.required = false;
+                phoneField.parentElement.style.opacity = '0.7';
+            }
+        });
+    </script>
+</body>
+</html>

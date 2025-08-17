@@ -1,0 +1,308 @@
+<?php
+require_once '../config/session_check.php';
+requireLogin();
+
+// Get user info
+$user = getCurrentUser();
+?>
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Taarifa za Harusi - HAMISI na SUBIRA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+/* BACKGROUND IMAGE & ANIMATION */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  background: url('public/images/Love.jpg') no-repeat center center/cover;
+  position: relative;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed;
+  top:0; left:0; right:0; bottom:0;
+  background: linear-gradient(270deg, rgba(255,105,180,0.4), rgba(255,215,0,0.35), rgba(173,216,230,0.35));
+  background-size: 600% 600%;
+  animation: bgMove 15s ease infinite;
+  z-index: -1;
+}
+@keyframes bgMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* FALLING ELEMENTS */
+.falling {
+  position: fixed;
+  top: -10px;
+  font-size: 20px;
+  animation: fall 8s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes fall {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(360deg); opacity: 0.8; }
+}
+
+/* SIDEBAR */
+.sidebar {
+  height: 100%;
+  width: 70px;
+  background: rgba(173, 20, 87, 0.95);
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.3);
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow-x: hidden;
+}
+.sidebar.open { width: 220px; }
+.sidebar .toggle-btn {
+  font-size: 1.6rem;
+  padding: 15px;
+  cursor: pointer;
+  text-align: center;
+  color: white;
+}
+.sidebar a {
+  padding: 12px 15px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  white-space: nowrap;
+}
+.sidebar a:hover { background: rgba(255,255,255,0.15); }
+.sidebar span { opacity: 0; transition: opacity 0.2s ease; }
+.sidebar.open span { opacity: 1; }
+
+/* DARK MODE */
+body.dark {
+  background: #1e1e1e;
+  color: #f1f1f1;
+}
+body.dark .sidebar { background: rgba(30, 30, 30, 0.95); }
+body.dark header { background: rgba(50,50,50,0.85); }
+body.dark .info-section, body.dark .contact-section { background: rgba(50,50,50,0.85); }
+
+/* TOP CONTROLS */
+.top-controls {
+  position: fixed;
+  top: 80px;
+  left: 10px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: left 0.3s ease;
+}
+.sidebar.open ~ .top-controls { left: 160px; }
+.control-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+.control-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.15);
+  box-shadow: 0 0 15px white;
+}
+
+/* HEADER */
+header {
+  padding: 20px;
+  background: rgba(255, 192, 203, 0.85);
+  border-radius: 0 0 20px 20px;
+  position: sticky;
+  top: 0;
+  margin-left: 70px;
+  text-align: center;
+  z-index: 10;
+}
+.sidebar.open ~ header { margin-left: 220px; }
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #c71585;
+  text-shadow: 0 2px 5px rgba(255,255,255,0.6);
+}
+
+/* CONTENT SECTIONS */
+main {
+  padding: 40px 20px;
+  margin-left: 70px;
+  z-index: 1;
+  position: relative;
+}
+.sidebar.open ~ main { margin-left: 220px; }
+.info-section, .contact-section {
+  background: rgba(255,255,255,0.85);
+  border-radius: 20px;
+  padding: 30px 25px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+  color: #5a2d2d;
+}
+.info-section h2, .contact-section h2 {
+  color: #b76e79;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  border-bottom: 3px solid #b76e79;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+ul { list-style: none; padding: 0; }
+ul li {
+  background: #fff;
+  padding: 12px 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(183, 110, 121, 0.15);
+}
+
+/* CONTACT ITEMS */
+.contact-item {
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+.contact-item a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* SOCIAL ICONS */
+.social-icons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 25px 0;
+}
+.social-icons a {
+  font-size: 1.5rem;
+  color: white;
+  text-decoration: none;
+  padding: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: all 0.3s ease;
+}
+.social-icons a:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 15px white;
+}
+
+/* FOOTER */
+footer {
+  background: rgba(255, 105, 180, 0.9);
+  padding: 15px;
+  margin-left: 70px;
+  text-align: center;
+}
+.sidebar.open ~ footer { margin-left: 220px; }
+</style>
+</head>
+<body>
+
+<!-- Falling hearts & stars -->
+<script>
+const symbols = ["💖", "✨"];
+for (let i = 0; i < 25; i++) {
+  let el = document.createElement("div");
+  el.classList.add("falling");
+  el.style.left = Math.random() * 100 + "vw";
+  el.style.animationDuration = (4 + Math.random() * 6) + "s";
+  el.style.fontSize = (15 + Math.random() * 20) + "px";
+  el.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+  document.body.appendChild(el);
+}
+</script>
+
+<!-- SIDEBAR -->
+<div id="mySidebar" class="sidebar">
+  <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+  <a href="index.html"><i class="fas fa-home"></i><span>Nyumbani</span></a>
+  <a href="about.html"><i class="fas fa-info-circle"></i><span>Kuhusu</span></a>
+  <a href="info.html"><i class="fas fa-file-alt"></i><span>Taarifa</span></a>
+  <a href="gallery.html"><i class="fas fa-image"></i><span>Picha</span></a>
+  <a href="rsvp.html"><i class="fas fa-envelope-open-text"></i><span>RSVP</span></a>
+  <a href="directions.html"><i class="fas fa-map-marker-alt"></i><span>Maelekezo</span></a>
+  <a href="gifts.html"><i class="fas fa-gift"></i><span>Zawadi</span></a>
+</div>
+
+<!-- TOP CONTROLS -->
+<div class="top-controls">
+  <button class="control-btn" onclick="toggleDarkMode()">🌙</button>
+</div>
+
+<header>
+  <h1>Taarifa za Harusi</h1>
+</header>
+
+<main>
+  <section class="info-section">
+    <h2>Taarifa</h2>
+    <ul>
+      <li><strong>Tarehe:</strong> Jumamosi, 20 Desemba 2025</li>
+      <li><strong>Muda:</strong> Saa 9:00 Alasiri</li>
+      <li><strong>Mahali:</strong> Ukumbi wa Dar live Mbagala, Dar es Salaam</li>
+      <li><strong>Mavazi:</strong> Rasmi – Nyeupe, Dhahabu, Waridi</li>
+    </ul>
+  </section>
+
+  <section class="contact-section">
+    <h2>Mawasiliano</h2>
+    <div class="contact-item"><span>📞</span> <a href="tel:+255622273287">+255 622 273 287</a> / <a href="tel:+255685103287">+255 685 103 287</a></div>
+    <div class="contact-item"><span>📧</span> <a href="mailto:hamisingayonga33@gmail.com">hamisingayonga33@gmail.com</a></div>
+    <div class="contact-item"><span>📍</span> Ukumbi wa Dar live Mbagala , Dar es Salaam</div>
+  </section>
+
+  <div class="social-icons">
+    <a href="https://www.facebook.com/profile.php?id=61563675050657" target="_blank" style="background:#3b5998"><i class="fab fa-facebook-f"></i></a>
+    <a href="https://wa.me/25585103287" target="_blank" style="background:#25D366"><i class="fab fa-whatsapp"></i></a>
+    <a href="https://www.instagram.com/hamisi_ngayonga?igsh=dXdxb2hhNWZuMmhq" target="_blank" style="background:#E1306C"><i class="fab fa-instagram"></i></a>
+    <a href="#" target="_blank" style="background:#000000"><i class="fab fa-tiktok"></i></a>
+  </div>
+</main>
+
+<footer>
+  &copy; 2025 Harusi ya HAMISI na SUBIRA.
+</footer>
+
+<script>
+function toggleSidebar() {
+  document.getElementById("mySidebar").classList.toggle("open");
+}
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+}
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+}
+</script>
+
+</body>
+</html>

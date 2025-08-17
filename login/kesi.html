@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Harusi ya HAMISI na SUBIRA - Nyumbani</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  color: white;
+  text-align: center;
+  background: linear-gradient(270deg, #ff6f91, #ff9671, #ffc75f, #f9f871);
+  background-size: 800% 800%;
+  animation: bgGradient 20s ease infinite;
+  overflow-x: hidden;
+}
+@keyframes bgGradient {
+  0% {background-position: 0% 50%;}
+  50% {background-position: 100% 50%;}
+  100% {background-position: 0% 50%;}
+}
+.heart {
+  position: fixed;
+  top: -10px;
+  font-size: 20px;
+  color: rgba(255,255,255,0.7);
+  animation: fall 8s linear infinite;
+  z-index: 0;
+}
+@keyframes fall {
+  0% {transform: translateY(-10px);}
+  100% {transform: translateY(110vh);}
+}
+
+/* Sidebar */
+.sidebar {
+  height: 100%;
+  width: 70px;
+  background: rgba(173, 20, 87, 0.95);
+  position: fixed;
+  left: 0;
+  top: 0;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.3);
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  border: none;
+  overflow-x: hidden;
+}
+.sidebar.open { width: 220px; }
+.sidebar .toggle-btn {
+  font-size: 1.6rem;
+  padding: 15px;
+  cursor: pointer;
+  text-align: center;
+  color: white;
+}
+.sidebar a {
+  padding: 12px 15px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  white-space: nowrap;
+}
+.sidebar a:hover { background: rgba(255,255,255,0.15); }
+.sidebar span { opacity: 0; transition: opacity 0.2s ease; }
+.sidebar.open span { opacity: 1; }
+
+/* Dark mode */
+body.dark {
+  background: #1e1e1e;
+  color: #f1f1f1;
+}
+body.dark header { background: rgba(50, 50, 50, 0.85); }
+body.dark .sidebar { background: rgba(30, 30, 30, 0.95); }
+
+/* Top controls stylish */
+.top-controls {
+  position: fixed;
+  top: 80px;
+  left: 10px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: left 0.3s ease;
+}
+.sidebar.open ~ .top-controls {
+  left: 160px;
+}
+.control-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255,255,255,0.4);
+  transition: all 0.3s ease;
+}
+.control-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.15);
+  box-shadow: 0 0 20px #fff;
+}
+.playing {
+  background: rgba(255, 100, 150, 0.7) !important;
+  box-shadow: 0 0 20px #ff6f91 !important;
+}
+
+/* Header */
+header {
+  padding: 20px;
+  background: rgba(255, 192, 203, 0.85);
+  border-radius: 0 0 20px 20px;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.6);
+  animation: headerPulse 6s ease-in-out infinite;
+  z-index: 10;
+  margin-left: 70px;
+}
+.sidebar.open ~ header { margin-left: 220px; }
+@keyframes headerPulse {
+  0%,100% {box-shadow: 0 0 20px #ff66a3;}
+  50% {box-shadow: 0 0 50px #ff1493;}
+}
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  color: #c71585;
+  text-shadow: 0 2px 5px rgba(255, 20, 147, 0.7);
+}
+
+/* Main */
+main {
+  padding: 60px 20px;
+  position: relative;
+  z-index: 2;
+  margin-left: 70px;
+}
+.sidebar.open ~ main { margin-left: 220px; }
+main h2 {
+  font-size: 2rem;
+  color: #ffe6f0;
+  text-shadow: 0 0 10px rgba(255, 20, 147, 0.8);
+}
+main p {
+  font-size: 1.25rem;
+  max-width: 700px;
+  margin: 15px auto 40px;
+}
+
+/* Countdown */
+.countdown {
+  font-size: 1.8rem;
+  font-weight: bold;
+  background: rgba(255,255,255,0.2);
+  padding: 15px 30px;
+  border-radius: 15px;
+  display: inline-block;
+  box-shadow: 0 0 15px rgba(255,255,255,0.6);
+  animation: glow 2s infinite alternate;
+}
+@keyframes glow {
+  0% {box-shadow: 0 0 10px #ff4d79;}
+  100% {box-shadow: 0 0 30px #ff1493;}
+}
+
+/* Footer */
+footer {
+  background: rgba(255, 105, 180, 0.9);
+  padding: 15px;
+  color: white;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+  margin-left: 70px;
+}
+.sidebar.open ~ footer { margin-left: 220px; }
+</style>
+</head>
+<body>
+
+<!-- Hearts background -->
+<script>
+for (let i = 0; i < 20; i++) {
+  let heart = document.createElement("div");
+  heart.classList.add("heart");
+  heart.style.left = Math.random() * 100 + "vw";
+  heart.style.animationDuration = (4 + Math.random() * 6) + "s";
+  heart.innerHTML = "💖";
+  document.body.appendChild(heart);
+}
+</script>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+  <div class="toggle-btn" onclick="toggleSidebar()">☰</div>
+  <a href="index.html"><span>Nyumbani</span></a>
+  <a href="about.html"><span>Kuhusu</span></a>
+  <a href="info.html"><span>Taarifa</span></a>
+  <a href="gifts.html"><span>Picha</span></a>
+  <a href="rsvp.html"><span>RSVP</span></a>
+  <a href="directions.html"><span>Maelekezo</span></a>
+  <a href="gifts.html"><span>Zawadi</span></a>
+</div>
+
+<!-- Top controls -->
+<div class="top-controls">
+  <button class="control-btn" onclick="toggleDarkMode()">🌙</button>
+  <button class="control-btn" onclick="prevTrack()">⏮</button>
+  <button id="playBtn" class="control-btn" onclick="toggleMusic()">▶️</button>
+  <button class="control-btn" onclick="nextTrack()">⏭</button>
+</div>
+
+<header>
+  <h1>Karibu kwenye Harusi ya HAMISI na SUBIRA</h1>
+</header>
+
+<main>
+  <h2>Karibu kwenye harusi yetu! Tunafurahia kushiriki nawe siku hii maalum 💍</h2>
+  <p>Tafadhali tembelea sehemu mbalimbali za tovuti hii kupata taarifa kamili kuhusu harusi.</p>
+  <div class="countdown" id="countdown">Inapakia muda wa harusi...</div>
+</main>
+
+<footer>
+  &copy; 2025 Harusi ya HAMISI na SUBIRA. Asante kwa kushiriki nasi!
+</footer>
+
+<!-- Muziki -->
+<audio id="weddingMusic" src="music/meja.mp3"></audio>
+
+<script>
+function toggleSidebar() {
+  document.getElementById("mySidebar").classList.toggle("open");
+}
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+}
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+}
+
+/* Muziki playlist */
+const playlist = [
+  "music/meja.mp3",
+  "music/love_song.mp3",
+  "music/wedding_theme.mp3"
+];
+let currentTrack = 0;
+const music = document.getElementById("weddingMusic");
+const playBtn = document.getElementById("playBtn");
+
+function loadTrack(index) {
+  currentTrack = index;
+  music.src = playlist[currentTrack];
+  music.play();
+  playBtn.textContent = "⏸";
+  playBtn.classList.add("playing");
+}
+function toggleMusic() {
+  if (music.paused) {
+    music.play();
+    playBtn.textContent = "⏸";
+    playBtn.classList.add("playing");
+  } else {
+    music.pause();
+    playBtn.textContent = "▶️";
+    playBtn.classList.remove("playing");
+  }
+}
+function nextTrack() {
+  currentTrack = (currentTrack + 1) % playlist.length;
+  loadTrack(currentTrack);
+}
+function prevTrack() {
+  currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+  loadTrack(currentTrack);
+}
+music.addEventListener("ended", nextTrack);
+
+/* Countdown */
+const countdownElement = document.getElementById("countdown");
+const countDownDate = new Date("Dec 20, 2025 10:00:00").getTime();
+setInterval(() => {
+  const now = new Date().getTime();
+  const distance = countDownDate - now;
+  if (distance < 0) {
+    countdownElement.innerHTML = "Harusi imefika! 🎉";
+    return;
+  }
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  countdownElement.innerHTML = `Siku ${days}, Saa ${hours}, Dakika ${minutes}, Sekunde ${seconds} 💖`;
+}, 1000);
+</script>
+
+</body>
+</html>
